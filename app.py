@@ -1,5 +1,5 @@
 # ==============================================================================
-#  FINAL APP.PY - With Render Deployment Configuration
+#  FINAL APP.PY - With table rename and ALL functions restored
 # ==============================================================================
 import os
 import uuid
@@ -11,32 +11,20 @@ from sqlalchemy import func, and_
 from sqlalchemy.exc import IntegrityError
 from werkzeug.utils import secure_filename
 
-# ==============================================================================
-#  APPLICATION & DATABASE SETUP (Production Ready)
-# ==============================================================================
+# --- App & DB Setup ---
 app = Flask(__name__, instance_relative_config=True)
-
-# Use an environment variable for the secret key, with a fallback for local development
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'a-default-secret-key-for-local-dev')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['UPLOAD_FOLDER'] = os.path.join(app.root_path, 'static', 'uploads')
 app.config['ALLOWED_EXTENSIONS'] = {'png', 'jpg', 'jpeg', 'gif'}
-
-# --- Database Configuration ---
-# Use Render's PostgreSQL database URL if it's available in the environment.
-# Otherwise, fall back to a local SQLite database file.
 DATABASE_URL = os.environ.get('DATABASE_URL')
 if DATABASE_URL and DATABASE_URL.startswith("postgres://"):
-    # SQLAlchemy 1.4+ needs 'postgresql://' instead of 'postgres://'
     DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql://", 1)
-
-# Set the final database URI
 app.config['SQLALCHEMY_DATABASE_URI'] = DATABASE_URL or 'sqlite:///your_database.db'
-
 db = SQLAlchemy(app)
 
 # ==============================================================================
-#  DATABASE MODELS (Unchanged)
+#  DATABASE MODELS (CORRECTED)
 # ==============================================================================
 class Product(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -64,29 +52,30 @@ class Customer(db.Model):
     name = db.Column(db.String(100), nullable=False)
     phone = db.Column(db.String(50), nullable=True)
     address = db.Column(db.String(200), nullable=True)
-    orders = db.relationship('Order', backref='customer', lazy=True, cascade="all, delete-orphan")
+    orders = db.relationship('CustomerOrder', backref='customer', lazy=True, cascade="all, delete-orphan")
 
-class Order(db.Model):
+class CustomerOrder(db.Model):
+    __tablename__ = 'customer_order'
     id = db.Column(db.Integer, primary_key=True)
     order_date = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
     total_value = db.Column(db.Float, nullable=False, default=0.0)
     customer_id = db.Column(db.Integer, db.ForeignKey('customer.id'), nullable=True)
     status = db.Column(db.String(50), nullable=False, default='Not in-process')
     delivery_method = db.Column(db.String(50), nullable=False, default='Delivery')
-    items = db.relationship('OrderItem', backref='order', lazy='dynamic', cascade="all, delete-orphan")
+    items = db.relationship('OrderItem', backref='customer_order', lazy='dynamic', cascade="all, delete-orphan")
 
 class OrderItem(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    order_id = db.Column(db.Integer, db.ForeignKey('order.id'), nullable=False)
+    order_id = db.Column(db.Integer, db.ForeignKey('customer_order.id'), nullable=False)
     product_id = db.Column(db.Integer, db.ForeignKey('product.id'), nullable=False)
-    variant_id = db.Column(db.Integer, db.ForeignKey('product_variant.id'), nullable=True) 
+    variant_id = db.Column(db.Integer, db.ForeignKey('product_variant.id'), nullable=True)
     quantity = db.Column(db.Integer, nullable=False, default=1)
     price_per_item = db.Column(db.Float, nullable=False)
     product = db.relationship('Product')
     variant = db.relationship('ProductVariant')
 
 # ==============================================================================
-#  Helper Functions & Core Routes (Unchanged)
+#  Helper Functions & Core Routes
 # ==============================================================================
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in app.config['ALLOWED_EXTENSIONS']
@@ -113,9 +102,9 @@ def logout():
 @app.route('/')
 @login_required
 def dashboard():
-    total_revenue = db.session.query(func.sum(Order.total_value)).scalar() or 0.0
-    total_orders = Order.query.count()
-    recent_orders = Order.query.order_by(Order.order_date.desc()).limit(5).all()
+    total_revenue = db.session.query(func.sum(CustomerOrder.total_value)).scalar() or 0.0
+    total_orders = CustomerOrder.query.count()
+    recent_orders = CustomerOrder.query.order_by(CustomerOrder.order_date.desc()).limit(5).all()
     return render_template('index.html', total_revenue=f'{total_revenue:.2f}', total_orders=total_orders, recent_orders=recent_orders)
 @app.route('/products')
 @login_required
@@ -143,7 +132,7 @@ def ui_order_form(): return render_template('order_form.html')
 def ui_view_order_modal(): return render_template('view_order_modal.html')
 
 # ==============================================================================
-#  API ROUTES (Unchanged)
+#  API ROUTES
 # ==============================================================================
 @app.route('/api/products')
 @login_required
@@ -160,10 +149,7 @@ def api_get_products():
         else:
             stock = p.simple_stock
         first_image = p.images.first()
-        product_data = {
-            'id': p.id, 'name': p.name, 'price': p.price, 'stock': stock,
-            'has_variants': p.has_variants, 'thumbnail': first_image.filename if first_image else None
-        }
+        product_data = {'id': p.id, 'name': p.name, 'price': p.price, 'stock': stock, 'has_variants': p.has_variants, 'thumbnail': first_image.filename if first_image else None}
         if p.has_variants:
             product_data['variants'] = [{'id': v.id, 'name': v.name, 'stock': v.stock} for v in p.variants]
         else:
@@ -309,12 +295,12 @@ def api_delete_customer(id):
 @app.route('/api/orders')
 @login_required
 def api_get_orders():
-    orders_list = Order.query.order_by(Order.order_date.desc()).all()
+    orders_list = CustomerOrder.query.order_by(CustomerOrder.order_date.desc()).all()
     return jsonify({'orders': [{'id': o.id, 'customer_name': o.customer.name if o.customer else 'N/A', 'date': o.order_date.strftime('%d %b %Y'), 'total_value': f'{o.total_value:.2f}', 'item_count': o.items.count(), 'status': o.status, 'delivery_method': o.delivery_method} for o in orders_list]})
 @app.route('/api/order/<int:id>')
 @login_required
 def api_get_order(id):
-    order = Order.query.get_or_404(id)
+    order = CustomerOrder.query.get_or_404(id)
     customer = order.customer
     items_data = []
     for item in order.items:
@@ -329,12 +315,12 @@ def api_add_order():
     try:
         customer = Customer.query.get(data['customer_id'])
         if not customer: return jsonify({'success': False, 'message': 'Customer not found.'}), 404
-        new_order = Order(customer=customer, total_value=0, status='Not in-process', delivery_method=data.get('delivery_method', 'Delivery'))
+        new_order = CustomerOrder(customer=customer, total_value=0, status='Not in-process', delivery_method=data.get('delivery_method', 'Delivery'))
         total_order_value = 0
         for item_data in data['items']:
             product = Product.query.get(item_data['product_id'])
             if not product: continue
-            new_item = OrderItem(order=new_order, product_id=product.id, variant_id=item_data.get('variant_id'), quantity=item_data['quantity'], price_per_item=product.price)
+            new_item = OrderItem(customer_order=new_order, product_id=product.id, variant_id=item_data.get('variant_id'), quantity=item_data['quantity'], price_per_item=product.price)
             total_order_value += product.price * item_data['quantity']
             db.session.add(new_item)
         new_order.total_value = total_order_value
@@ -347,7 +333,7 @@ def api_add_order():
 @app.route('/api/order/<int:id>/edit', methods=['POST'])
 @login_required
 def api_edit_order(id):
-    order = Order.query.get_or_404(id)
+    order = CustomerOrder.query.get_or_404(id)
     data = request.get_json()
     try:
         order.customer_id = data['customer_id']
@@ -370,7 +356,7 @@ def api_edit_order(id):
 @app.route('/api/order/<int:id>/status', methods=['POST'])
 @login_required
 def api_update_order_status(id):
-    order = Order.query.get_or_404(id)
+    order = CustomerOrder.query.get_or_404(id)
     data = request.get_json()
     new_status = data.get('status')
     allowed_statuses = ['Not in-process', 'Processing', 'Completed']
@@ -386,7 +372,7 @@ def api_update_order_status(id):
 @app.route('/api/order/<int:id>/delete', methods=['POST'])
 @login_required
 def api_delete_order(id):
-    order = Order.query.get_or_404(id)
+    order = CustomerOrder.query.get_or_404(id)
     try:
         db.session.delete(order)
         db.session.commit()
@@ -403,13 +389,13 @@ def api_revenue_data():
         target_month_date = today - timedelta(days=i * 30)
         month_start = target_month_date.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
         next_month_start = (month_start.replace(day=28) + timedelta(days=4)).replace(day=1)
-        monthly_total = db.session.query(func.sum(Order.total_value)).filter(Order.order_date >= month_start, Order.order_date < next_month_start).scalar() or 0.0
+        monthly_total = db.session.query(func.sum(CustomerOrder.total_value)).filter(CustomerOrder.order_date >= month_start, CustomerOrder.order_date < next_month_start).scalar() or 0.0
         monthly_labels.append(month_start.strftime('%b %Y'))
         monthly_data.append(round(monthly_total, 2))
     daily_labels, daily_data = [], []
     for i in range(6, -1, -1):
         day = today - timedelta(days=i)
-        daily_total = db.session.query(func.sum(Order.total_value)).filter(func.date(Order.order_date) == day.date()).scalar() or 0.0
+        daily_total = db.session.query(func.sum(CustomerOrder.total_value)).filter(func.date(CustomerOrder.order_date) == day.date()).scalar() or 0.0
         daily_labels.append(day.strftime('%a, %d'))
         daily_data.append(round(daily_total, 2))
     return jsonify({'monthly': {'labels': monthly_labels, 'data': monthly_data}, 'daily': {'labels': daily_labels, 'data': daily_data}})
