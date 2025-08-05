@@ -1,0 +1,123 @@
+/* ==========================================================================
+   Global Styles & Variables
+   ========================================================================== */
+
+/* We define your colors as CSS variables for easy reuse */
+:root {
+    --primary-color: #742370;
+    --secondary-color: #401951;
+    --light-gray: #f8f9fa;
+    --dark-text: #212529;
+    --body-bg: #ffffff;
+    --sidebar-bg: #401951; /* Using secondary color for sidebar */
+    --sidebar-text: #ffffff;
+    --sidebar-hover: #742370; /* Using primary color for hover */
+}
+
+body {
+    font-family: 'Inter', sans-serif; /* Clean, modern font from layout.html */
+    background-color: var(--body-bg);
+    color: var(--dark-text);
+    /* Prevents horizontal scrollbar from the sidebar */
+    overflow-x: hidden; 
+}
+
+/* ==========================================================================
+   Layout: Sidebar & Main Content
+   ========================================================================== */
+
+.sidebar {
+    width: 280px;
+    background-color: var(--sidebar-bg);
+    min-height: 100vh; /* Make sidebar always fill the screen height */
+}
+
+.sidebar .nav-link {
+    font-size: 1rem;
+    font-weight: 500;
+    /* Smooth transition for hover effects */
+    transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out;
+}
+
+.sidebar .nav-link:hover {
+    background-color: var(--sidebar-hover);
+}
+
+/* Style for the currently active page link */
+.sidebar .nav-link.active {
+    background-color: var(--primary-color);
+    font-weight: 600;
+}
+
+.sidebar hr {
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.main-content {
+    background-color: var(--light-gray);
+    width: calc(100% - 280px); /* Fill remaining width */
+}
+
+/* ==========================================================================
+   Custom Component Styles
+   ========================================================================== */
+
+/* Customizing Bootstrap's primary button to use your color */
+.btn-primary {
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+    font-weight: 500;
+    transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+
+.btn-primary:hover {
+    background-color: var(--secondary-color);
+    border-color: var(--secondary-color);
+}
+
+/* Styling for cards on the dashboard */
+.card {
+    border: none;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+    transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+
+.card:hover {
+    transform: translateY(-5px); /* Smooth lift animation on hover */
+    box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+}
+
+/* General style for page headers */
+.page-header {
+    margin-bottom: 2rem;
+}
+
+/* Styling for tables to make them look clean */
+.table {
+    vertical-align: middle; /* Aligns text in the middle of table cells */
+}
+
+.table thead {
+    font-weight: 600;
+    color: var(--secondary-color);
+}
+
+/* Style for the modal (pop-up) headers */
+.modal-header {
+    background-color: var(--primary-color);
+    color: white;
+}
+
+.modal-header .btn-close {
+    filter: invert(1) grayscale(100%) brightness(200%); /* Makes the 'X' button white */
+}
+
+/* A simple animation for elements to fade in */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.fade-in {
+    animation: fadeIn 0.5s ease-in-out forwards;
+}

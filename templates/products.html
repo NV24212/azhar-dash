@@ -1,0 +1,66 @@
+{% extends 'layout.html' %}
+
+{% block content %}
+
+<!-- Page Header -->
+<div class="page-header d-flex flex-column flex-md-row justify-content-between align-items-center">
+    <h1 class="h2 mb-3 mb-md-0">Products</h1>
+    <div class="d-flex align-items-center">
+        <!-- Search Bar -->
+        <div class="input-group me-3">
+            <span class="input-group-text"><i class="bi bi-search"></i></span>
+            <input type="text" class="form-control" id="productSearchInput" placeholder="Search products...">
+        </div>
+        <!-- Add Product Button -->
+        <button id="addProductBtn" class="btn btn-primary d-flex align-items-center">
+            <i class="bi bi-plus-lg me-2"></i> Add Product
+        </button>
+    </div>
+</div>
+
+<!-- Products Table Card -->
+<div class="card fade-in">
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th scope="col">Name</th>
+                        <th scope="col">Price</th>
+                        <th scope="col">Stock</th>
+                        <th scope="col">Options</th>
+                        <th scope="col" class="text-end">Actions</th>
+                    </tr>
+                </thead>
+                <!-- The product data will be dynamically inserted here by JavaScript -->
+                <tbody id="product-table-body">
+                    <!-- Example of a single row (for visualization) -->
+                    <!-- This will be replaced by a loading spinner or actual data -->
+                    <tr>
+                        <td colspan="5" class="text-center text-muted py-5">
+                            <div class="spinner-border text-primary" role="status">
+                                <span class="visually-hidden">Loading...</span>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+
+{% block scripts %}
+<!-- This block is for page-specific JavaScript -->
+<script>
+    // This is a placeholder for the JavaScript logic that will:
+    // 1. Fetch products from '/api/products' when the page loads.
+    // 2. Populate the table body with the fetched data.
+    // 3. Handle clicks on the "Add Product", "Edit", and "Delete" buttons.
+    // 4. Implement the search functionality.
+    // We will write this logic in main.js later.
+    console.log("Products page script loaded.");
+</script>
+{% endblock %}

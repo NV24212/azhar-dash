@@ -1,0 +1,39 @@
+<!-- This is the complete and final orders.html with the new column -->
+{% extends 'layout.html' %}
+{% block content %}
+<div class="page-header d-flex flex-column flex-md-row justify-content-between align-items-center">
+    <h1 class="h2 mb-3 mb-md-0">Orders</h1>
+    <div class="d-flex align-items-center">
+        <button id="addOrderBtn" class="btn btn-primary d-flex align-items-center"><i class="bi bi-plus-lg me-2"></i> Add Order</button>
+    </div>
+</div>
+<div class="card fade-in">
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th scope="col">Order ID</th>
+                        <th scope="col">Customer</th>
+                        <th scope="col">Date</th>
+                        <th scope="col">Total</th>
+                        <th scope="col">Fulfillment</th> <!-- NEW COLUMN -->
+                        <th scope="col">Status</th>
+                        <th scope="col" class="text-end">Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="order-table-body">
+                    <tr>
+                        <!-- The colspan is now 7 to match the new number of columns -->
+                        <td colspan="7" class="text-center text-muted py-5">
+                            <div class="spinner-border text-primary" role="status">
+                                <span class="visually-hidden">Loading...</span>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

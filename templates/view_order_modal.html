@@ -1,0 +1,37 @@
+<!-- Complete and final view_order_modal.html -->
+<div id="viewOrderContent">
+    <div class="row">
+        <!-- Customer Card -->
+        <div class="col-md-6 mb-3">
+            <div class="card h-100">
+                <div class="card-header">Customer Details</div>
+                <div class="card-body">
+                    <p class="mb-1"><strong>Name:</strong> <span id="viewCustomerName"></span></p>
+                    <p class="mb-1"><strong>Phone:</strong> <span id="viewCustomerPhone"></span></p>
+                    <p class="mb-0"><strong>Address:</strong> <span id="viewCustomerAddress"></span></p>
+                </div>
+            </div>
+        </div>
+        <!-- Order Details Card -->
+        <div class="col-md-6 mb-3">
+            <div class="card h-100">
+                <div class="card-header">Order Details</div>
+                <div class="card-body">
+                    <p class="mb-1"><strong>Order ID:</strong> <span id="viewOrderId"></span></p>
+                    <p class="mb-1"><strong>Date:</strong> <span id="viewOrderDate"></span></p>
+                    <p class="mb-1"><strong>Status:</strong> <span id="viewOrderStatus" class="badge"></span></p>
+                    <p class="mb-0"><strong>Fulfillment:</strong> <span id="viewOrderFulfillment" class="badge"></span></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <h5 class="mt-3">Items</h5>
+    <div class="table-responsive">
+        <table class="table">
+            <thead><tr><th style="width: 60px;"></th><th>Product</th><th>Qty</th><th class="text-end">Price</th><th class="text-end">Subtotal</th></tr></thead>
+            <tbody id="viewOrderItems"></tbody>
+            <tfoot><tr><td colspan="4" class="text-end border-0"><strong>Total:</strong></td><td class="text-end border-0"><strong class="fs-5" style="color: var(--primary-color);" id="viewOrderTotal"></strong></td></tr></tfoot>
+        </table>
+    </div>
+</div>

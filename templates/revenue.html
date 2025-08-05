@@ -1,0 +1,61 @@
+{% extends 'layout.html' %}
+
+{% block content %}
+
+<!-- Page Header -->
+<div class="page-header d-flex justify-content-between align-items-center">
+    <h1 class="h2">Revenue Analytics</h1>
+    <!-- We can add date range selectors here in the future -->
+</div>
+
+<!-- Main Chart Card: Monthly Revenue -->
+<div class="card fade-in mb-4">
+    <div class="card-header">
+        <h5 class="card-title mb-0">Monthly Revenue Overview</h5>
+    </div>
+    <div class="card-body">
+        <!-- The canvas is the element where Chart.js will draw the graph -->
+        <canvas id="monthlyRevenueChart" style="min-height: 300px;"></canvas>
+    </div>
+</div>
+
+<!-- Additional Analytics Cards -->
+<div class="row g-4 fade-in" style="animation-delay: 0.2s;">
+    <div class="col-md-6">
+        <div class="card">
+             <div class="card-header">
+                <h5 class="card-title mb-0">Daily Revenue (Last 7 Days)</h5>
+            </div>
+            <div class="card-body">
+                <canvas id="dailyRevenueChart"></canvas>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card">
+             <div class="card-header">
+                <h5 class="card-title mb-0">Other Analytics</h5>
+            </div>
+            <div class="card-body text-center text-muted">
+                <p>Additional charts and metrics can be placed here.</p>
+                <i class="bi bi-pie-chart-fill fs-1 text-primary opacity-25"></i>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+
+{% block scripts %}
+<!-- We need to include the Chart.js library to render charts -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+    // Placeholder for the JavaScript logic for the Revenue page.
+    // This script will:
+    // 1. Fetch revenue data from a new API endpoint (e.g., /api/revenue-data).
+    // 2. Use Chart.js to initialize and render the monthly and daily charts.
+    console.log("Revenue page script loaded. Chart.js is available.");
+</script>
+{% endblock %}

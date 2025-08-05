@@ -1,0 +1,59 @@
+{% extends 'layout.html' %}
+
+{% block content %}
+
+<!-- Page Header -->
+<div class="page-header d-flex flex-column flex-md-row justify-content-between align-items-center">
+    <h1 class="h2 mb-3 mb-md-0">Customers</h1>
+    <div class="d-flex align-items-center">
+        <!-- Search Bar -->
+        <div class="input-group me-3">
+            <span class="input-group-text"><i class="bi bi-search"></i></span>
+            <input type="text" class="form-control" id="customerSearchInput" placeholder="Search customers...">
+        </div>
+        <!-- Add Customer Button -->
+        <button id="addCustomerBtn" class="btn btn-primary d-flex align-items-center">
+            <i class="bi bi-person-plus-fill me-2"></i> Add Customer
+        </button>
+    </div>
+</div>
+
+<!-- Customers Table Card -->
+<div class="card fade-in">
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th scope="col">Name</th>
+                        <th scope="col">Phone</th>
+                        <th scope="col">Address</th>
+                        <th scope="col" class="text-end">Actions</th>
+                    </tr>
+                </thead>
+                <!-- The customer data will be dynamically inserted here by JavaScript -->
+                <tbody id="customer-table-body">
+                    <!-- Initial loading state -->
+                    <tr>
+                        <td colspan="4" class="text-center text-muted py-5">
+                            <div class="spinner-border text-primary" role="status">
+                                <span class="visually-hidden">Loading...</span>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+
+{% block scripts %}
+<script>
+    // Placeholder for the JavaScript logic for the Customers page.
+    // This will be implemented in main.js.
+    console.log("Customers page script loaded.");
+</script>
+{% endblock %}
