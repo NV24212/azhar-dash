@@ -135,7 +135,9 @@ def ui_order_form(): return render_template('order_form.html')
 @login_required
 def ui_view_order_modal(): return render_template('view_order_modal.html')
 
-# ... All API routes are unchanged and correct ...
+# ==============================================================================
+#  API ROUTES
+# ==============================================================================
 @app.route('/api/products')
 @login_required
 def api_get_products():
@@ -406,5 +408,5 @@ def api_revenue_data():
 #  INITIALIZATION & SERVER START
 # ==============================================================================
 if __name__ == '__main__':
-    # REMOVED db.create_all() from here, as Flask-Migrate will handle it.
+    # We don't run db.create_all() here anymore because Flask-Migrate handles it.
     app.run(debug=True)
