@@ -1,5 +1,5 @@
 # ==============================================================================
-#  FINAL APP.PY - With the missing API route RESTORED
+#  FINAL APP.PY - With Render Deployment Configuration
 # ==============================================================================
 import os
 import uuid
@@ -11,13 +11,28 @@ from sqlalchemy import func, and_
 from sqlalchemy.exc import IntegrityError
 from werkzeug.utils import secure_filename
 
-# --- App & DB Setup ---
+# ==============================================================================
+#  APPLICATION & DATABASE SETUP (Production Ready)
+# ==============================================================================
 app = Flask(__name__, instance_relative_config=True)
-app.config['SECRET_KEY'] = 'your-super-secret-key-that-you-should-change'
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///your_database.db'
+
+# Use an environment variable for the secret key, with a fallback for local development
+app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'a-default-secret-key-for-local-dev')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['UPLOAD_FOLDER'] = os.path.join(app.root_path, 'static', 'uploads')
 app.config['ALLOWED_EXTENSIONS'] = {'png', 'jpg', 'jpeg', 'gif'}
+
+# --- Database Configuration ---
+# Use Render's PostgreSQL database URL if it's available in the environment.
+# Otherwise, fall back to a local SQLite database file.
+DATABASE_URL = os.environ.get('DATABASE_URL')
+if DATABASE_URL and DATABASE_URL.startswith("postgres://"):
+    # SQLAlchemy 1.4+ needs 'postgresql://' instead of 'postgres://'
+    DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql://", 1)
+
+# Set the final database URI
+app.config['SQLALCHEMY_DATABASE_URI'] = DATABASE_URL or 'sqlite:///your_database.db'
+
 db = SQLAlchemy(app)
 
 # ==============================================================================
@@ -70,7 +85,9 @@ class OrderItem(db.Model):
     product = db.relationship('Product')
     variant = db.relationship('ProductVariant')
 
-# --- Helper functions & Core Routes (Unchanged) ---
+# ==============================================================================
+#  Helper Functions & Core Routes (Unchanged)
+# ==============================================================================
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in app.config['ALLOWED_EXTENSIONS']
 def login_required(f):
@@ -126,7 +143,7 @@ def ui_order_form(): return render_template('order_form.html')
 def ui_view_order_modal(): return render_template('view_order_modal.html')
 
 # ==============================================================================
-#  API ROUTES
+#  API ROUTES (Unchanged)
 # ==============================================================================
 @app.route('/api/products')
 @login_required
@@ -153,19 +170,11 @@ def api_get_products():
             product_data['stock'] = p.simple_stock
         results.append(product_data)
     return jsonify({'products': results})
-
-# *** THIS IS THE MISSING ROUTE THAT HAS BEEN RESTORED ***
 @app.route('/api/product/<int:id>')
 @login_required
 def api_get_product(id):
     p = Product.query.get_or_404(id)
-    return jsonify({'product': {
-        'id': p.id, 'name': p.name, 'price': p.price, 'description': p.description,
-        'has_variants': p.has_variants, 'simple_stock': p.simple_stock,
-        'variants': [{'id': v.id, 'name': v.name, 'stock': v.stock} for v in p.variants],
-        'images': [{'id': i.id, 'filename': i.filename} for i in p.images]
-    }})
-
+    return jsonify({'product': {'id': p.id, 'name': p.name, 'price': p.price, 'description': p.description, 'has_variants': p.has_variants, 'simple_stock': p.simple_stock, 'variants': [{'id': v.id, 'name': v.name, 'stock': v.stock} for v in p.variants], 'images': [{'id': i.id, 'filename': i.filename} for i in p.images]}})
 @app.route('/api/product/add', methods=['POST'])
 @login_required
 def api_add_product():
@@ -301,15 +310,7 @@ def api_delete_customer(id):
 @login_required
 def api_get_orders():
     orders_list = Order.query.order_by(Order.order_date.desc()).all()
-    return jsonify({'orders': [{
-        'id': o.id,
-        'customer_name': o.customer.name if o.customer else 'N/A',
-        'date': o.order_date.strftime('%d %b %Y'),
-        'total_value': f'{o.total_value:.2f}',
-        'item_count': o.items.count(),
-        'status': o.status,
-        'delivery_method': o.delivery_method  # <-- ADD THIS LINE
-    } for o in orders_list]})
+    return jsonify({'orders': [{'id': o.id, 'customer_name': o.customer.name if o.customer else 'N/A', 'date': o.order_date.strftime('%d %b %Y'), 'total_value': f'{o.total_value:.2f}', 'item_count': o.items.count(), 'status': o.status, 'delivery_method': o.delivery_method} for o in orders_list]})
 @app.route('/api/order/<int:id>')
 @login_required
 def api_get_order(id):
@@ -413,6 +414,9 @@ def api_revenue_data():
         daily_data.append(round(daily_total, 2))
     return jsonify({'monthly': {'labels': monthly_labels, 'data': monthly_data}, 'daily': {'labels': daily_labels, 'data': daily_data}})
 
+# ==============================================================================
+#  INITIALIZATION & SERVER START
+# ==============================================================================
 if __name__ == '__main__':
     with app.app_context():
         if not os.path.exists(app.config['UPLOAD_FOLDER']):
