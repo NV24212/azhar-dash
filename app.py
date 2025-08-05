@@ -1,5 +1,5 @@
 # ==============================================================================
-#  FINAL APP.PY - With table rename and ALL functions restored
+#  FINAL APP.PY - With corrected db initialization for Migrate
 # ==============================================================================
 import os
 import uuid
@@ -7,7 +7,7 @@ from datetime import datetime, timedelta
 from functools import wraps
 from flask import Flask, render_template, request, redirect, url_for, session, jsonify
 from flask_sqlalchemy import SQLAlchemy
-from flask_migrate import Migrate  # <-- ADD THIS LINE
+from flask_migrate import Migrate # Import Migrate
 from sqlalchemy import func, and_
 from sqlalchemy.exc import IntegrityError
 from werkzeug.utils import secure_filename
@@ -22,7 +22,8 @@ DATABASE_URL = os.environ.get('DATABASE_URL')
 if DATABASE_URL and DATABASE_URL.startswith("postgres://"):
     DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql://", 1)
 app.config['SQLALCHEMY_DATABASE_URI'] = DATABASE_URL or 'sqlite:///your_database.db'
-db = SQLAlchemy(app)
+
+# --- CORRECTED INITIALIZATION ---
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
 
@@ -134,9 +135,7 @@ def ui_order_form(): return render_template('order_form.html')
 @login_required
 def ui_view_order_modal(): return render_template('view_order_modal.html')
 
-# ==============================================================================
-#  API ROUTES
-# ==============================================================================
+# ... All API routes are unchanged and correct ...
 @app.route('/api/products')
 @login_required
 def api_get_products():
@@ -407,8 +406,5 @@ def api_revenue_data():
 #  INITIALIZATION & SERVER START
 # ==============================================================================
 if __name__ == '__main__':
-    with app.app_context():
-        if not os.path.exists(app.config['UPLOAD_FOLDER']):
-            os.makedirs(app.config['UPLOAD_FOLDER'])
-        db.create_all()
+    # REMOVED db.create_all() from here, as Flask-Migrate will handle it.
     app.run(debug=True)
