@@ -7,6 +7,7 @@ from datetime import datetime, timedelta
 from functools import wraps
 from flask import Flask, render_template, request, redirect, url_for, session, jsonify
 from flask_sqlalchemy import SQLAlchemy
+from flask_migrate import Migrate  # <-- ADD THIS LINE
 from sqlalchemy import func, and_
 from sqlalchemy.exc import IntegrityError
 from werkzeug.utils import secure_filename
@@ -22,6 +23,8 @@ if DATABASE_URL and DATABASE_URL.startswith("postgres://"):
     DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql://", 1)
 app.config['SQLALCHEMY_DATABASE_URI'] = DATABASE_URL or 'sqlite:///your_database.db'
 db = SQLAlchemy(app)
+db = SQLAlchemy(app)
+migrate = Migrate(app, db)
 
 # ==============================================================================
 #  DATABASE MODELS (CORRECTED)

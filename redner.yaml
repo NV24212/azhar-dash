@@ -1,0 +1,20 @@
+# render.yaml
+services:
+  - type: web
+    name: admin-dashboard  # You can change this name if you like
+    env: python
+    plan: free
+    buildCommand: "./build.sh"
+    startCommand: "gunicorn app:app"
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.9
+      - key: SECRET_KEY
+        generateValue: true
+      - fromDatabase:
+          name: dashboard-db # IMPORTANT: Make sure this matches the name of your Render database
+          property: connectionString
+    disks:
+      - name: uploads
+        mountPath: /opt/render/project/src/static/uploads
+        sizeGB: 1
