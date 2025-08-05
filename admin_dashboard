@@ -1,0 +1,20 @@
+# render.yaml
+services:
+  - type: web
+    name: admin-dashboard
+    env: python
+    plan: free
+    buildCommand: "pip install -r requirements.txt"
+    startCommand: "gunicorn app:app"
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.9
+      - key: SECRET_KEY
+        generateValue: true
+      - fromDatabase:
+          name: dashboard-db # IMPORTANT: Make sure this matches the name of your Render database
+          property: connectionString
+    disks:
+      - name: uploads
+        mountPath: /opt/render/project/src/static/uploads
+        sizeGB: 1
